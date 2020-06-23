@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Add Project Data</h2>
+
+<mat-dialog-content [formGroup]="form">
+  
+    <mat-form-field>
+        <mat-label>Project Name</mat-label>
+        <input matInput formControlName="name">
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Project Description</mat-label>
+        <input matInput formControlName="description">
+    </mat-form-field>
+
+    <mat-form-field (click)="fileInput.click()" class="cursor-pointer">
+        <mat-label>CSV</mat-label>
+        <input matInput formControlName="fileName">
+        <mat-icon matSuffix>attach_file</mat-icon>
+        <input hidden (change)="onFileSelected()" #fileInput type="file" id="file">
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>UTM Zone</mat-label>
+        <input matInput formControlName="utmZone" [matAutocomplete]="auto" autocomplete="off">
+    </mat-form-field>
+      
+    <mat-autocomplete #auto="matAutocomplete">
+        <mat-option *ngFor="let zone of filteredUtmZones | async" [value]="zone">{{zone}}</mat-option>
+    </mat-autocomplete>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-raised-button mat-dialog-close>Close</button>
+    <button mat-raised-button class="mat-primary" (click)="save()">Save</button>
+</mat-dialog-actions>
