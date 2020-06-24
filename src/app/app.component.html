@@ -3,11 +3,20 @@
   <mat-form-field appearance="standard" class="mr-20 ml-20">
     <input [ngModel]="query" (ngModelChange)="onQueryChanged($event)" matInput placeholder="Search...">
   </mat-form-field>
-  <mat-slide-toggle [ngModel]="followMe" (ngModelChange)="onFollowMeChanged($event)"class="ml-auto mr-20">Follow me!</mat-slide-toggle>
   <button mat-icon-button 
-          (click)="openAddPointsDialog()">
-    <mat-icon class="big">add</mat-icon>
+          class="ml-auto mr-20"
+          [matMenuTriggerFor]="menu">
+    <mat-icon class="big">more_vert</mat-icon>
   </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item 
+            (click)="openAddPointsDialog()">Add New Points</button>
+    <button mat-menu-item>
+      <mat-slide-toggle 
+            [ngModel]="followMe" 
+            (ngModelChange)="onFollowMeChanged($event)">Follow me!</mat-slide-toggle>
+    </button>
+  </mat-menu>
 </mat-toolbar>
 <app-arc-gis-map 
   [events]="addPointsSubject.asObservable()" 
