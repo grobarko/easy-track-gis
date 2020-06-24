@@ -16,12 +16,17 @@ export class ArcGisMapComponent implements OnInit {
   private map: any;
   private view: any;
   private featureLayer: any;
+  private graphicsLayer: any;
 
   private addPointsSubscription: Subscription;
   @Input() events: Observable<NewPoints>;
 
   private queryChangedSubscription: Subscription;
   @Input() queries: Observable<string>;
+
+  private followMeChangedSubscription: Subscription;
+  @Input() follows: Observable<boolean>;
+  private followInterval: any;
 
   constructor(
     private featureService: EasyTrackFeatureService) { }
@@ -56,10 +61,7 @@ export class ArcGisMapComponent implements OnInit {
 
       await this.addEasyTrackFeatureLayer();
 
-      this.featureService.getPosition()
-        .then(location => {
-          this.moveMapToCenter([location.longitude, location.latitude]);
-        })
+      await this.addEasyTrackGraphicsLayer();
 
     } catch (error) {
       console.log("EsriLoader: ", error);
@@ -157,7 +159,23 @@ export class ArcGisMapComponent implements OnInit {
     // });
   }
 
+  async addEasyTrackGraphicsLayer() {
+    var self = this;
+
+    const [GraphicsLayer] = await loadModules(["esri/layers/GraphicsLayer"]);
+
+    this.graphicsLayer = new GraphicsLayer();
+		this.map.add(this.graphicsLayer);
+
+    this.featureService.getPosition()
+        .then(location => {
+          self.moveMapToCenter([location.longitude, location.latitude]);
+          self.updateCurrentLocation(location.longitude, location.latitude);
+        });
+  }
+
   ngOnInit() : void {
+    var self = this;
     this.initializeMap();
 
     this.addPointsSubscription = this.events.subscribe((data: NewPoints) => {
@@ -165,7 +183,19 @@ export class ArcGisMapComponent implements OnInit {
     });
 
     this.queryChangedSubscription = this.queries.subscribe((query: string) => {
-        this.setFeatureLayerFilter(query);
+      this.setFeatureLayerFilter(query);
+    });
+
+    this.followMeChangedSubscription = this.follows.subscribe((follow: boolean) => {
+      this.followInterval && clearInterval(this.followInterval);
+      if (follow) {
+        this.followInterval = setInterval(() => {
+          this.featureService.getPosition()
+            .then(location => {
+              self.updateCurrentLocation(location.longitude, location.latitude);
+            });
+        }, 10000)
+      }
     });
   }
 
@@ -175,6 +205,8 @@ export class ArcGisMapComponent implements OnInit {
       this.view.container = null;
     }
     this.addPointsSubscription.unsubscribe();
+    this.queryChangedSubscription.unsubscribe();
+    this.followMeChangedSubscription.unsubscribe();
   }
 
   private async addFeatures(data: NewPoints, map: any, view: any) {
@@ -254,6 +286,40 @@ export class ArcGisMapComponent implements OnInit {
   }
 
   private setFeatureLayerFilter(query: string) {
-    this.featureLayer.definitionExpression = !query ? '' : `pointDescription LIKE '%${query}%'`;
+    this.featureLayer.definitionExpression = !query ? '' : `pointDescription LIKE '%${query}%' OR projectName LIKE '%${query}%' OR projectDescription LIKE '%${query}%' OR ID LIKE '%${query}%'`;
+  }
+
+  private async updateCurrentLocation(longitude, latitude) {
+    const [Graphic] = await loadModules(["esri/Graphic"]);
+
+    let point = {
+      type: "point",
+      longitude: longitude,
+      latitude: latitude
+    };
+
+    let simpleMarkerSymbol = {
+      type: "simple-marker",
+      color: "#3f51b5",  // blue
+      outline: {
+          color: [255, 255, 255], // white
+          width: 1
+      }
+    };
+    
+    let popupTemplate = {
+      title: "Me",
+      content: "I am here!"
+    };
+
+    let pointGraphic = new Graphic({
+      geometry: point,
+      symbol: simpleMarkerSymbol,
+      popupTemplate: popupTemplate
+    });
+
+    this.graphicsLayer.removeAll();
+    this.graphicsLayer.add(pointGraphic);
+    console.log("adding a point done");
   }
 }

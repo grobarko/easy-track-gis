@@ -1,12 +1,15 @@
 <mat-toolbar color="primary" class="mat-elevation-z6">
   <mat-icon aria-hidden="false" aria-label="Polyline icon" class="big">timeline</mat-icon>
   <mat-form-field appearance="standard" class="mr-20 ml-20">
-    <input  [ngModel]="query" (ngModelChange)="onQueryChanged($event)" matInput placeholder="Search...">
+    <input [ngModel]="query" (ngModelChange)="onQueryChanged($event)" matInput placeholder="Search...">
   </mat-form-field>
+  <mat-slide-toggle [ngModel]="followMe" (ngModelChange)="onFollowMeChanged($event)"class="ml-auto mr-20">Follow me!</mat-slide-toggle>
   <button mat-icon-button 
-          class="ml-auto"
           (click)="openAddPointsDialog()">
     <mat-icon class="big">add</mat-icon>
   </button>
 </mat-toolbar>
-<app-arc-gis-map [events]="addPointsSubject.asObservable()" [queries]="queryChangedSubject.asObservable()"></app-arc-gis-map>
+<app-arc-gis-map 
+  [events]="addPointsSubject.asObservable()" 
+  [queries]="queryChangedSubject.asObservable()"
+  [follows]="followMeChangedSubject.asObservable()"></app-arc-gis-map>

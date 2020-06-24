@@ -14,8 +14,10 @@ export class AppComponent {
 
   addPointsSubject: Subject<NewPoints> = new Subject<NewPoints>();
   queryChangedSubject: Subject<string> = new Subject<string>();
+  followMeChangedSubject: Subject<boolean> = new Subject<boolean>();
 
   query: string;
+  followMe: boolean = false;
 
   constructor(private dialog: MatDialog) {}
   
@@ -32,8 +34,13 @@ export class AppComponent {
   }
 
   onQueryChanged(query) {
-    console.log(query);
+    console.log("Search: " + query);
     this.queryChangedSubject.next(query);
+  }
+
+  onFollowMeChanged(follow) {
+    console.log("Follow me: " + follow);
+    this.followMeChangedSubject.next(follow);
   }
 
 }
