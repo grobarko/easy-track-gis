@@ -50,7 +50,7 @@ export class ArcGisMapComponent implements OnInit {
 
       this.view = new MapView(mapViewProperties);
 
-      if (this.featureService.isLoggedIn()) {
+      if (!this.featureService.isLoggedIn()) {
         await this.featureService.generateToken().toPromise();
       }
 
