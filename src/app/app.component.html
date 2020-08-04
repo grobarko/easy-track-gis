@@ -1,9 +1,11 @@
 <mat-toolbar color="primary" class="mat-elevation-z6">
   <mat-icon aria-hidden="false" aria-label="Polyline icon" class="big">timeline</mat-icon>
-  <mat-form-field appearance="standard" class="mr-20 ml-20">
+  <mat-form-field appearance="standard" class="mr-20 ml-20"
+    *ngIf="isUserAuthenticated()">
     <input [ngModel]="query" (ngModelChange)="onQueryChanged($event)" matInput placeholder="Search...">
   </mat-form-field>
   <button mat-icon-button 
+          *ngIf="isUserAuthenticated()"
           class="ml-auto mr-20"
           [matMenuTriggerFor]="menu">
     <mat-icon class="big">more_vert</mat-icon>
@@ -18,7 +20,10 @@
     </button>
   </mat-menu>
 </mat-toolbar>
-<app-arc-gis-map 
+<app-arc-gis-map
+  *ngIf="isUserAuthenticated()"
   [events]="addPointsSubject.asObservable()" 
   [queries]="queryChangedSubject.asObservable()"
   [follows]="followMeChangedSubject.asObservable()"></app-arc-gis-map>
+<app-authenticate-user
+  *ngIf="!isUserAuthenticated()"></app-authenticate-user>

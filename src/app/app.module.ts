@@ -12,18 +12,21 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatCardModule } from '@angular/material/card';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ArcGisMapComponent } from './arc-gis-map/arc-gis-map.component';
 import { AddPointsDialogComponent } from './add-points-dialog/add-points-dialog.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AuthenticateUserComponent } from './authenticate-user/authenticate-user.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ArcGisMapComponent,
-    AddPointsDialogComponent
+    AddPointsDialogComponent,
+    AuthenticateUserComponent
   ],
   imports: [
     BrowserModule,
@@ -40,7 +43,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     MatFormFieldModule,
     MatAutocompleteModule,
     MatSlideToggleModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCardModule
   ],
   providers: [],
   bootstrap: [AppComponent],

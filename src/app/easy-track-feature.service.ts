@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, retry, tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { NewFeature } from './arc-gis-map/new-feature.model';
 
 @Injectable({
@@ -13,6 +13,25 @@ export class EasyTrackFeatureService {
   private authUrl: string = "https://www.arcgis.com/sharing/rest/oauth2/token";
 
   constructor(private http: HttpClient) { }
+
+  isUserAuthenticated(): boolean {
+    const client = this.getClient();
+    const secret = this.getSecret();
+    if (!client || !secret) {
+      localStorage.removeItem('client');
+      localStorage.removeItem('secret');
+      return false;
+    }
+    return true;
+  }
+
+  getClient(): string {
+    return localStorage.getItem("client");
+  }
+
+  getSecret(): string {
+    return localStorage.getItem('secret');
+  }
 
   isLoggedIn(): boolean {
     const token = this.getToken();
@@ -43,7 +62,7 @@ export class EasyTrackFeatureService {
     return new Date(localStorage.getItem('expires'));
   }
 
-  generateToken(): Observable<any> {
+  generateToken(client: string = null, secret: string = null, authenticate: boolean = false): Observable<any> {
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type':  'application/x-www-form-urlencoded',
@@ -51,7 +70,9 @@ export class EasyTrackFeatureService {
       })
     }
 
-    const body = `client_id=dsOX1lsDipaUeFHf&client_secret=72aa9109601049e1b1d96172860c2cb3&grant_type=client_credentials&expiration=20160`;
+    if (!client) client = this.getClient();
+    if (!secret) secret = this.getSecret();
+    const body = `client_id=${client}&client_secret=${secret}&grant_type=client_credentials&expiration=20160`;
 
     return this.http.post(`${this.authUrl}`, body, httpOptions)
       .pipe(
@@ -62,6 +83,11 @@ export class EasyTrackFeatureService {
             const now = new Date();
             now.setTime(now.getTime() + (data.expires_in * 1000));
             localStorage.setItem('expires', now.toISOString());
+
+            if (authenticate) {
+              localStorage.setItem('client', client);
+              localStorage.setItem('secret', secret);
+            }
           }
         ),
         catchError(this.handleError)
@@ -104,7 +130,7 @@ export class EasyTrackFeatureService {
     });
   }
 
-  private handleError(error: HttpErrorResponse) {
+  private handleError(error: HttpErrorResponse): Observable<never> {
     console.log('handle error');
     console.log(error);
     if (error.error instanceof ErrorEvent) {

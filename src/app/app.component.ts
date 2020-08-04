@@ -3,6 +3,7 @@ import { MatDialog, MatDialogConfig } from "@angular/material/dialog";
 import { AddPointsDialogComponent } from './add-points-dialog/add-points-dialog.component';
 import { Subject } from 'rxjs'
 import { NewPoints } from './add-points-dialog/new-points.model';
+import { EasyTrackFeatureService } from './easy-track-feature.service';
 
 
 @Component({
@@ -19,7 +20,12 @@ export class AppComponent {
   query: string;
   followMe: boolean = false;
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog,
+    private featureService: EasyTrackFeatureService) {}
+
+  isUserAuthenticated() {
+    return this.featureService.isUserAuthenticated();
+  }
   
   openAddPointsDialog() {
     const dialogConfig = new MatDialogConfig();
